@@ -460,8 +460,11 @@ function isVisible(ev){
   return(ev.name+ev.desc+ev.detail+String(ev.year)).toLowerCase().includes(searchTerm);
 }
 
-function toggleOpen(card){card.classList.toggle('open');}
-
+function toggleOpen(card){
+  if(window.getSelection().toString().length>0)return;
+  card.classList.toggle('open');
+}
+  
 function renderAll(){
   const wrap=document.getElementById('timelineWrap');
   const stats=document.getElementById('statsBar');
