@@ -65,7 +65,8 @@
   .legend-item.active{border-color:currentColor;}
   .legend-item.inactive{opacity:0.25;}
   .legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-  .li-service{color:var(--accent-service);} .li-service .legend-dot{background:var(--accent-service);}
+  .li-all{color:#ffffff;}
+  .li-all .legend-dot{background:#ffffff;} .li-service .legend-dot{background:var(--accent-service);}
   .li-hardware{color:var(--accent-hardware);} .li-hardware .legend-dot{background:var(--accent-hardware);}
   .li-infra{color:var(--accent-infra);} .li-infra .legend-dot{background:var(--accent-infra);}
   .li-japan{color:var(--accent-japan);} .li-japan .legend-dot{background:var(--accent-japan);}
@@ -224,6 +225,7 @@
 <header>
   <div class="header-title">INTERNET <span>CHRONICLE</span></div>
   <div class="legend" id="legend">
+    <div class="legend-item li-all active" id="legendAll" onclick="resetCat()"><div class="legend-dot" style="background:#ffffff;"></div>ALL</div>
     <div class="legend-item li-service" data-cat="service" onclick="toggleCat('service')"><div class="legend-dot"></div>SERVICE</div>
     <div class="legend-item li-hardware" data-cat="hardware" onclick="toggleCat('hardware')"><div class="legend-dot"></div>HARDWARE</div>
     <div class="legend-item li-infra" data-cat="infra" onclick="toggleCat('infra')"><div class="legend-dot"></div>INFRA / TECH</div>
@@ -477,25 +479,26 @@ const activeCats={service:false,hardware:false,infra:false,japan:false};
 let selectedCat=null;
 let searchTerm='';
 
+function resetCat(){
+  selectedCat=null;
+  Object.keys(activeCats).forEach(k=>activeCats[k]=false);
+  document.getElementById('legendAll').classList.add('active');
+  document.querySelectorAll('.legend-item[data-cat]').forEach(el=>{
+    el.classList.remove('active','inactive');
+  });
+  renderAll();
+}
+
 function toggleCat(cat){
-  if(selectedCat===cat){
-    // 同じカテゴリを再度押したら全表示に戻す
-    selectedCat=null;
-    Object.keys(activeCats).forEach(k=>activeCats[k]=false);
-    document.querySelectorAll('.legend-item').forEach(el=>{
-      el.classList.remove('active','inactive');
-    });
-  } else {
-    // 新しいカテゴリを選択→そのカテゴリだけ表示
-    selectedCat=cat;
-    Object.keys(activeCats).forEach(k=>activeCats[k]=false);
-    activeCats[cat]=true;
-    document.querySelectorAll('.legend-item').forEach(el=>{
-      const elCat=el.getAttribute('data-cat');
-      el.classList.toggle('active',elCat===cat);
-      el.classList.toggle('inactive',elCat!==cat);
-    });
-  }
+  selectedCat=cat;
+  Object.keys(activeCats).forEach(k=>activeCats[k]=false);
+  activeCats[cat]=true;
+  document.getElementById('legendAll').classList.remove('active');
+  document.querySelectorAll('.legend-item[data-cat]').forEach(el=>{
+    const elCat=el.getAttribute('data-cat');
+    el.classList.toggle('active',elCat===cat);
+    el.classList.toggle('inactive',elCat!==cat);
+  });
   renderAll();
 }
 
