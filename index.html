@@ -224,10 +224,10 @@
 <header>
   <div class="header-title">INTERNET <span>CHRONICLE</span></div>
   <div class="legend" id="legend">
-    <div class="legend-item li-service active" data-cat="service" onclick="toggleCat('service')"><div class="legend-dot"></div>SERVICE</div>
-    <div class="legend-item li-hardware active" data-cat="hardware" onclick="toggleCat('hardware')"><div class="legend-dot"></div>HARDWARE</div>
-    <div class="legend-item li-infra active" data-cat="infra" onclick="toggleCat('infra')"><div class="legend-dot"></div>INFRA / TECH</div>
-    <div class="legend-item li-japan active" data-cat="japan" onclick="toggleCat('japan')"><div class="legend-dot"></div>JAPAN</div>
+    <div class="legend-item li-service" data-cat="service" onclick="toggleCat('service')"><div class="legend-dot"></div>SERVICE</div>
+    <div class="legend-item li-hardware" data-cat="hardware" onclick="toggleCat('hardware')"><div class="legend-dot"></div>HARDWARE</div>
+    <div class="legend-item li-infra" data-cat="infra" onclick="toggleCat('infra')"><div class="legend-dot"></div>INFRA / TECH</div>
+    <div class="legend-item li-japan" data-cat="japan" onclick="toggleCat('japan')"><div class="legend-dot"></div>JAPAN</div>
   </div>
   <div class="search-box">
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -473,14 +473,29 @@ status:'LEGACY'},
 ];
 
 /* ── State ── */
-const activeCats={service:true,hardware:true,infra:true,japan:true};
+const activeCats={service:false,hardware:false,infra:false,japan:false};
+let selectedCat=null;
 let searchTerm='';
 
 function toggleCat(cat){
-  activeCats[cat]=!activeCats[cat];
-  const el=document.querySelector(`[data-cat="${cat}"]`);
-  el.classList.toggle('active',activeCats[cat]);
-  el.classList.toggle('inactive',!activeCats[cat]);
+  if(selectedCat===cat){
+    // 同じカテゴリを再度押したら全表示に戻す
+    selectedCat=null;
+    Object.keys(activeCats).forEach(k=>activeCats[k]=false);
+    document.querySelectorAll('.legend-item').forEach(el=>{
+      el.classList.remove('active','inactive');
+    });
+  } else {
+    // 新しいカテゴリを選択→そのカテゴリだけ表示
+    selectedCat=cat;
+    Object.keys(activeCats).forEach(k=>activeCats[k]=false);
+    activeCats[cat]=true;
+    document.querySelectorAll('.legend-item').forEach(el=>{
+      const elCat=el.getAttribute('data-cat');
+      el.classList.toggle('active',elCat===cat);
+      el.classList.toggle('inactive',elCat!==cat);
+    });
+  }
   renderAll();
 }
 
@@ -490,7 +505,8 @@ function doSearch(){
 }
 
 function isVisible(ev){
-  if(!activeCats[ev.cat])return false;
+  // カテゴリ選択中はそのカテゴリだけ、未選択時は全表示
+  if(selectedCat&&ev.cat!==selectedCat)return false;
   if(!searchTerm)return true;
   return(ev.name+ev.desc+ev.detail+String(ev.year)).toLowerCase().includes(searchTerm);
 }
